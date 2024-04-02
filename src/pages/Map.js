@@ -3,7 +3,7 @@ import Map, { Marker, Popup, NavigationControl, FullscreenControl, ScaleControl,
 import Pin from '../components/Pin';
 import ControlPanel from '../components/ControlPanel';
 import 'mapbox-gl/dist/mapbox-gl.css';
-  
+import { useNavigate } from 'react-router-dom'; 
 
 const MapComponent = () => {
   const [locations, setLocations] = useState([]);
@@ -14,6 +14,12 @@ const MapComponent = () => {
     longitude: -5.930120,
     zoom: 10,
   });
+
+  const navigate = useNavigate();
+
+  const handleNavigate = (locationId) => {
+    navigate(`/location/${locationId}`);
+  };
 
   const fetchLocations = async (viewState) => {
     try {
@@ -45,12 +51,13 @@ const MapComponent = () => {
   const pins = useMemo(
     () => locations.map((location, index) => (
       <Marker
-        key={`marker-${index}`}
+        key={location._id ? location._id.toString() : index}        
         longitude={location.geometry.coordinates[0]}
         latitude={location.geometry.coordinates[1]}
         anchor="bottom"
         onClick={e => {	
           e.originalEvent.stopPropagation();
+          console.log("Marker clicked", location);
           setPopupInfo(location);
         }}
       >
@@ -59,6 +66,11 @@ const MapComponent = () => {
     )),
     [locations]
   );
+
+  console.log(popupInfo); // To inspect the entire popupInfo object
+  if (popupInfo) {
+    console.log(popupInfo._id); // To inspect the _id of the popupInfo, if popupInfo is not null
+  }
 
   return (
     <>
@@ -86,6 +98,11 @@ const MapComponent = () => {
           >
             <div>
               <h3>{popupInfo.properties.Address}</h3>
+              <button className="btn btn-outline btn-info"
+                onClick={() => handleNavigate(popupInfo._id.$oid)} 
+                >
+                  Learn More
+              </button>
               {/* Render other popupInfo details as needed */}
             </div>
           </Popup>

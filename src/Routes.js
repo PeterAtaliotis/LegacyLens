@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Test } from "./pages/Test";
+import Test  from "./pages/Test";
 import Map from "./pages/Map";
 import MapMarker from "./pages/MapMarker";
 import LocationDetails from "./pages/LocationsDetails";

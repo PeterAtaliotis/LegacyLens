@@ -1,7 +1,7 @@
 // src/components/ARScene.js
 import React, { useEffect } from 'react';
 
-const Test = () => {
+const ARScene = () => {
   useEffect(() => {
     // Ensure A-Frame and AR.js are loaded
     if (window.AFRAME && window.AFRAME.components['arjs']) {
@@ -23,4 +23,4 @@ const Test = () => {
   );
 };
 
-export default Test;
+export default ARScene;
