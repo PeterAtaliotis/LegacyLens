@@ -1,5 +1,7 @@
 import { RoutesComponent } from "./Routes";
 import './App.css';
+import Navigation from './components/navbar/Navigation';
+
 
 export const App = () => {
 	return(

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const LocationDetails = () => {
   const { id } = useParams();
@@ -7,6 +7,12 @@ const LocationDetails = () => {
   const [wikiInfo, setWikiInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+
+  const handleNavigate = (locationId) => {
+    navigate(`/location/community/${locationId}`);
+  };
 
   useEffect(() => {
     const fetchLocationDetails = async () => {
@@ -35,7 +41,7 @@ const LocationDetails = () => {
   if (loading) return <div className="flex justify-center items-center h-screen"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div></div>;
   if (error) return <div className="text-red-500 text-center mt-4">{error}</div>;
   if (!locationDetails) return <div>Location not found.</div>;
-
+  
   return (
     <div className="max-w-4xl mx-auto p-5">
       <div className="bg-white shadow-md rounded-lg overflow-hidden"> 
@@ -53,13 +59,18 @@ const LocationDetails = () => {
           >
             Go Back
           </button>
+          <button className="btn btn-outline btn-info"
+            onClick={() => handleNavigate(locationDetails._id)} 
+            >
+              Go to community section
+          </button>
           {/* Display other details as needed */}
         </div>
         <div className='p-4'>
           <div className="collapse collapse-arrow bg-base-200">
             <input type="checkbox" /> 
             <div className="collapse-title text-xl font-medium">
-              Learn More
+              Learn More About The Area
             </div>
             <div className="collapse-content"> 
             <h1><strong>Title:</strong> {wikiInfo?.title}</h1>
