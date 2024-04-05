@@ -2,14 +2,28 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Logo from "./Logo";
 import Button from "./Button";
+import { useAuth0 } from "@auth0/auth0-react";
+import { useNavigate } from 'react-router-dom';
+import LoginButton from "../authComponents/login";
+import LogoutButton from "../authComponents/logout";
+import Profile from "../authComponents/profile";
+
+
 
 const Navbar = ({ toggle }) => {
+
+  const navigate = useNavigate();
+
+  const goToProfile = () => {
+    navigate('/profile'); // Assuming your profile page's route is '/profile'
+  };
+  
+  const { isAuthenticated } = useAuth0();
   return (
     <div className="navbar bg-base-100">
       <div className="navbar-start">
         <div className="dropdown">
           <button tabIndex={0} className="btn btn-ghost lg:hidden" onClick={toggle}>
-            {/* SVG icon for the menu can remain unchanged */}
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
@@ -46,7 +60,21 @@ const Navbar = ({ toggle }) => {
     </ul>
       </div>
       <div className="navbar-end">
-        <Button />
+        {!isAuthenticated && (
+          <>
+            <LoginButton/>
+          </>
+        )}
+        {isAuthenticated && (
+          <>
+            <LogoutButton/>
+          </>
+        )}
+      </div>  
+      <div className="avatar px-8" onClick={goToProfile}> 
+        <div className="w-16 rounded">
+          <Profile></Profile>
+        </div>
       </div>
     </div>
   );
