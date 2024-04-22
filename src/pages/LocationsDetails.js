@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import LocationInfo from '../components/LocationInfo';
 
 const LocationDetails = () => {
   const { id } = useParams();
@@ -44,47 +45,36 @@ const LocationDetails = () => {
   
   return (
     <div className="max-w-4xl mx-auto p-5">
-      <div className="bg-white shadow-md rounded-lg overflow-hidden"> 
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">{locationDetails.properties.Address}</h2>
-        </div>
-        <div className="p-4">
-          <p><strong>Currently Used As:</strong> {locationDetails.properties.CurrentUse}</p>
-          <p><strong>Former Use:</strong> {locationDetails.properties.FormerUse}</p>
-          <p><strong>Construction Date:</strong> {locationDetails.properties.Date_Const}</p>
-          <p><strong>Extent of The Building That Remains Historical :</strong> {locationDetails.properties.Extent}</p>
-          <button
-            onClick={() => window.history.back()}
-            className="btn btn-primary btn-outline"
+      <LocationInfo locationDetails={locationDetails} handleNavigate={handleNavigate} />
+      <button
+          onClick={() => window.history.back()}
+          className="btn btn-primary btn-outline"
+        >
+          Go Back
+        </button>
+        <button className="btn btn-outline btn-info mt-2 ml-2"
+          onClick={() => handleNavigate(locationDetails._id)} 
           >
-            Go Back
-          </button>
-          <button className="btn btn-outline btn-info"
-            onClick={() => handleNavigate(locationDetails._id)} 
-            >
-              Go to community section
-          </button>
-          {/* Display other details as needed */}
+            Go to community section
+        </button>
+      <div className='p-0 mt-3'>
+        <div className="collapse collapse-arrow bg-base-200">
+          <input type="checkbox" /> 
+          <div className="collapse-title text-xl font-medium">
+            Learn More About The Area
+          </div>
+          <div className="collapse-content"> 
+          <h1><strong>Title:</strong> {wikiInfo?.title}</h1>
+          <p><strong>Summary:</strong> {wikiInfo?.content}</p>
+          {wikiInfo?.image_url && <img src={wikiInfo?.image_url} alt="Wikipedia Image" className="max-w-xs mt-2" />}
+          <p>
+            Read more on 
+            <a href={wikiInfo?.url} target="_blank" rel="noopener noreferrer"
+              className="text-blue-600 hover:text-blue-800 font-semibold underline decoration-wavy decoration-2 hover:decoration-4 transition-all ease-in-out duration-300 ml-2">
+              Wikipedia
+            </a>.
+          </p>
         </div>
-        <div className='p-4'>
-          <div className="collapse collapse-arrow bg-base-200">
-            <input type="checkbox" /> 
-            <div className="collapse-title text-xl font-medium">
-              Learn More About The Area
-            </div>
-            <div className="collapse-content"> 
-            <h1><strong>Title:</strong> {wikiInfo?.title}</h1>
-            <p><strong>Summary:</strong> {wikiInfo?.content}</p>
-            {wikiInfo?.image_url && <img src={wikiInfo?.image_url} alt="Wikipedia Image" className="max-w-xs mt-2" />}
-            <p>
-              Read more on 
-              <a href={wikiInfo?.url} target="_blank" rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 font-semibold underline decoration-wavy decoration-2 hover:decoration-4 transition-all ease-in-out duration-300 ml-2">
-                Wikipedia
-              </a>.
-            </p>
-          </div>
-          </div>
         </div>
       </div>
     </div>

@@ -10,8 +10,11 @@ root.render(
   <Auth0Provider
     domain={process.env.REACT_APP_DOMAIN}
     clientId={process.env.REACT_APP_CLIENT_ID}
+
     authorizationParams={{
-      redirect_uri: window.location.origin
+      redirect_uri: window.location.origin,
+      audience: "http://localhost:8080",
+      scope: "openid profile email read:current_user update:current_user_metadata"
     }}
   >
   <React.StrictMode>

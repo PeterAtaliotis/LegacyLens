@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, ScaleControl, GeolocateControl, ViewStateChangeEvent } from 'react-map-gl';
 import Pin from '../components/Pin';
 import ControlPanel from '../components/ControlPanel';
@@ -12,7 +12,7 @@ const MapComponent = () => {
   const [viewState, setViewState] = useState({
     latitude: 54.597286,
     longitude: -5.930120,
-    zoom: 10,
+    zoom: 17,
   });
 
   const navigate = useNavigate();
@@ -20,6 +20,23 @@ const MapComponent = () => {
   const handleNavigate = (locationId) => {
     navigate(`/location/${locationId}`);
   };
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      position => {
+        setViewState({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          zoom: 17,
+        });
+      },
+      () => {
+        console.log('Error: The Geolocation service failed.');
+      }
+    );
+  }, []);
+
+
 
   const fetchLocations = async (viewState) => {
     try {
@@ -36,7 +53,7 @@ const MapComponent = () => {
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
       // Only keep up to 100 locations
-      setLocations(data.slice(0, 300));
+      setLocations(data.slice(0, 230));
     } catch (error) {
       console.error("Error fetching locations:", error);
     }
