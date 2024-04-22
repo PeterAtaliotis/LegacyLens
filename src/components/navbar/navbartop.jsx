@@ -30,15 +30,9 @@ const Navbar = ({ toggle }) => {
           </button>
           {/* Adjusted Dropdown menu with React Router's Link */}
           <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-            <li><Link to="/ar">AR</Link></li>
-            <li>
-                <a>Parent</a>
-                <ul className="p-2">
-                    <li><a>Submenu 1</a></li>
-                    <li><a>Submenu 2</a></li>
-                </ul>
-                </li>
-                <li><a>Item 3</a></li>
+            <li><Link to="/test">AR</Link></li>
+            <li><a><Link to="/map">Map</Link></a></li>
+            <li><a><Link to="/profile">Profile</Link></a></li>
             </ul>
         </div>
         <Logo />
@@ -47,16 +41,8 @@ const Navbar = ({ toggle }) => {
       <div className="navbar-center hidden lg:flex">
       <ul className="menu menu-horizontal px-1">
       <li><Link to ="/test">AR</Link></li>
-      <li>
-        <details>
-          <summary>Parent</summary>
-          <ul className="p-2">
-               <li><a>Submenu 1</a></li>
-            <li><a>Submenu 2</a></li>
-          </ul>
-        </details>
-      </li>
       <li><Link to ="/map">Map</Link></li>
+      <li><Link to ="/profile">Profile</Link></li>
     </ul>
       </div>
       <div className="navbar-end">

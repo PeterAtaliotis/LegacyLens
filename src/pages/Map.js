@@ -40,8 +40,7 @@ const MapComponent = () => {
 
   const fetchLocations = async (viewState) => {
     try {
-      // Calculate bounds more dynamically based on zoom level
-      const scale = 1 / viewState.zoom; // Simple scaling factor based on zoom
+      const scale = 1 / viewState.zoom;
       const neLat = viewState.latitude + (0.1 * scale);
       const neLng = viewState.longitude + (0.1 * scale);
       const swLat = viewState.latitude - (0.1 * scale);
@@ -125,7 +124,6 @@ const MapComponent = () => {
           </Popup>
         )}
       </Map>
-      <ControlPanel />
     </>
   );
 };

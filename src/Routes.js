@@ -8,6 +8,7 @@ import Welcome from "./pages/Welcome";
 import ProfilePage from "./pages/ProfilePage";
 import Navigation from './components/navbar/Navigation';
 import CommunitySection from "./pages/CommunitySection";
+import ImageUpload from "./pages/Photos";
 import {AuthenticationGuard}  from "./components/authComponents/authentication-guard";
 
 
@@ -27,12 +28,12 @@ export const RoutesComponent = () =>{
             <Navigation/>
             <Routes>
                 <Route path="/" element={<Welcome />} />
-                <Route path="/test" element={<AuthenticationGuard component={Test} />} />
-                <Route path="/map" element={<AuthenticationGuard component={Map} />}/>
-                <Route path="/markedmap" element={<MapMarker />} />
-                <Route path="/location/:id" element={<AuthenticationGuard component={LocationDetails} />}/>
+                <Route path="/location/:id" element={<LocationDetails/>} />
+                <Route path="/map" element={<Map/>} />
+                <Route path="/test" element={<Test/>} />
                 <Route path="/location/community/:id" element={<AuthenticationGuard component={CommunitySection} />}/>
                 <Route path="/profile" element={<AuthenticationGuard component={ProfilePage} />}/>
+                <Route path="/location/:id/upload" element={<AuthenticationGuard component={ImageUpload} />}/>
             </Routes>
         </Router>
     )

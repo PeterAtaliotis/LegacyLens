@@ -15,6 +15,10 @@ const LocationDetails = () => {
     navigate(`/location/community/${locationId}`);
   };
 
+  const handleNavigateToUpload = () => {
+    navigate(`/location/${id}/upload`);
+  };
+
   useEffect(() => {
     const fetchLocationDetails = async () => {
       try {
@@ -52,10 +56,13 @@ const LocationDetails = () => {
         >
           Go Back
         </button>
-        <button className="btn btn-outline btn-info mt-2 ml-2"
+        <button className="btn btn-neutral mt-2 ml-2"
           onClick={() => handleNavigate(locationDetails._id)} 
           >
             Go to community section
+        </button>
+        <button onClick={handleNavigateToUpload} className="btn btn-accent mt-2 ml-2">
+           Upload Image
         </button>
       <div className='p-0 mt-3'>
         <div className="collapse collapse-arrow bg-base-200">

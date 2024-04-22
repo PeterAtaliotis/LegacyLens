@@ -204,7 +204,13 @@ const MessageBoard = ({ locationId }) => {
     <div>
       <div className="mb-4">
       <LocationInfo locationDetails={locationDetails}/>
-      <button className="btn btn-default mt-2" onClick={goToLocationDetails}>
+      <button
+          onClick={() => window.history.back()}
+          className="btn btn-primary btn-outline mt-2 mr-2"
+          >
+          Go Back
+      </button>
+      <button className="btn btn-accent mt-2" onClick={goToLocationDetails}>
           View Location Details
         </button>
         <textarea

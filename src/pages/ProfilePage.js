@@ -57,7 +57,7 @@ const ProfilePage = () => {
         {!loading && userComments.length > 0 ? (
           <ul>
             {userComments.map((comment) => (
-              <li key={comment.comment_id} className="mb-2">
+              <li key={comment.comment_id} className="p-4 mb-4 border border-gray-300 rounded shadow-sm">
                 <Link to={`/location/community/${comment.location_id}`} className="text-blue-500 hover:text-blue-700">
                   {comment.message_content}
                 </Link>
