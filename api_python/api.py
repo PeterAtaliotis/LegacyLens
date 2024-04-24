@@ -5,20 +5,15 @@ import string
 import datetime
 from functools import wraps
 from flask_cors import CORS
-from bson.json_util import dumpsgir 
+from bson.json_util import dumps
 import os
 import requests
 import logging
 import boto3
 from werkzeug.exceptions import Unauthorized
 from werkzeug.utils import secure_filename
-
-
-
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
-
-# app instance
 app = Flask(__name__)
 CORS(app)
 
@@ -44,7 +39,7 @@ locations = db.locations
 photos = db.photos
 
 ###########################################################################
-#####Photo
+##### Photo Endpoints
 ###########################################################################
 
 @app.route('/upload', methods=['POST'])
@@ -122,6 +117,7 @@ def get_photos():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+    
 @app.route("/api/photos/location/<string:id>", methods=["GET"])
 def get_photos_by_location(id):
     if len(id) != 24 or not all(c in string.hexdigits for c in id):
@@ -146,10 +142,10 @@ def get_photos_by_location(id):
         return make_response(jsonify({"error": str(e)}), 500)
 
 
-
+###################################################################
 ## LOCATION RETRIEVAL ENDPOINTS
+##################################################################
 
-# /api/home
 @app.route("/api/home", methods=['GET'])
 def return_home():
     return jsonify({
@@ -211,7 +207,7 @@ def show_all_locations():
 
     return make_response(jsonify(data_to_return), 200)
 
-#get locations to for adjusted viewport
+# get locations to for adjusted viewport
 @app.route('/api/locations/viewport', methods=['GET'])
 def get_locations_within_bounds():
     ne_lat = float(request.args.get('ne_lat'))
@@ -236,7 +232,6 @@ def get_locations_within_bounds():
 
 
 # get all locations paginated
-
 @app.route("/api/locations", methods=["GET"])
 def show_all_locations_paginated():
     page_num, page_size = 1, 10
@@ -276,6 +271,10 @@ def get_one_location(id):
         else:
             return make_response( jsonify( {"error" : "Invalid location_list ID" } ), 404 )
         
+        
+##################################################
+#####################  COMMENT ENDPOINTS
+##################################################
 
 #get all comments off a location  
 @app.route("/api/locations/<string:id>/comments", methods=["GET"])
@@ -283,22 +282,18 @@ def fetch_all_comments(id):
     try:
         location = locations.find_one({"_id": ObjectId(id)}, {"properties.comments": 1, "_id": 0})
         
-        # Check if a document was found and if it has 'properties' with a 'comments' key
         if location and "properties" in location and "comments" in location["properties"]:
             data_to_return = [
                 {**comment, "_id": str(comment["_id"])} for comment in location["properties"]["comments"]
             ]
         else:
-            # No document found, or 'properties.comments' not in document
             data_to_return = []
             
         return make_response(jsonify(data_to_return), 200)
     except Exception as e:
-        # Handle any other exception, such as ObjectId casting failure
         return make_response(jsonify({"error": str(e)}), 500)
     
-# get one comment off a location
-    
+# get one comment off a location  
 @app.route('/api/locations/<string:location_id>/comments/<string:comment_id>', methods=['GET'])
 def fetch_one_comment(location_id, comment_id):
     try:
@@ -318,25 +313,20 @@ def fetch_one_comment(location_id, comment_id):
         return make_response(jsonify(comment['comment']), 200)
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
-        
-##################################################
-#####################  COMMENT ENDPOINTS
-##################################################
 
     
 # post a comment
 @app.route('/api/locations/<string:id>/comments', methods=['POST'])
 def add_comment(id):
     try:
-        # Extract user data directly from request JSON
+      
         user_id = request.json.get("user_id")
-        username = request.json.get("username", "Anonymous")  # Default to "Anonymous" if username is not provided
+        username = request.json.get("username", "Anonymous")  #
         message_content = request.json.get("message_content")
         
         if not user_id or not message_content:
             return make_response(jsonify({'error': 'Missing necessary user data or message content'}), 400)
 
-        # Build the comment object
         comment = {
             '_id': ObjectId(),
             'user_id': user_id,
@@ -347,7 +337,6 @@ def add_comment(id):
             'created_at': datetime.datetime.now(datetime.timezone.utc)
         }
 
-        # Update the MongoDB document
         result = locations.update_one({'_id': ObjectId(id)}, {'$push': {'properties.comments': comment}})
         if result.matched_count == 0:
             return make_response(jsonify({'error': 'Location not found'}), 404)
@@ -364,7 +353,6 @@ def add_comment(id):
 @app.route('/api/locations/<string:location_id>/comments/<string:comment_id>', methods=['DELETE'])
 def delete_comment(location_id, comment_id):
     try:
-        # Ensure that request JSON data is loaded correctly
         if not request.json:    
             return make_response(jsonify({'error': 'Missing JSON data'}), 400)
 
@@ -372,23 +360,20 @@ def delete_comment(location_id, comment_id):
         if not user_id:
             return make_response(jsonify({'error': 'Missing necessary user ID'}), 400)
 
-        # Prepare the query to find the document and the specific comment by user ID
         comment_query = {
             '_id': ObjectId(location_id),
             'properties.comments': {
                 '$elemMatch': {
                     '_id': ObjectId(comment_id),
-                    'user_id': user_id  # Ensure only the owner can delete the comment
+                    'user_id': user_id  
                 }
             }
         }
 
-        # Specify the action to remove the comment
         update_action = {
             '$pull': {'properties.comments': {'_id': ObjectId(comment_id)}}
         }
 
-        # Execute the update
         result = locations.update_one(comment_query, update_action)
         if result.modified_count == 0:
             return make_response(jsonify({'error': 'No comment found with provided user ID, or you do not have permission to delete this comment'}), 404)
@@ -403,7 +388,6 @@ def delete_comment(location_id, comment_id):
 @app.route('/api/locations/<string:location_id>/comments/<string:comment_id>', methods=['PUT'])
 def edit_comment(location_id, comment_id):
     try:
-        # Ensure that request JSON data is loaded correctly
         if not request.json:
             return make_response(jsonify({'error': 'Missing JSON data'}), 400)
 
@@ -412,13 +396,12 @@ def edit_comment(location_id, comment_id):
         if not user_id or not new_content:
             return make_response(jsonify({'error': 'Missing necessary user ID or new content'}), 400)
 
-        # Verify that the user can edit the comment
         comment_query = {
             '_id': ObjectId(location_id),
             'properties.comments': {
                 '$elemMatch': {
                     '_id': ObjectId(comment_id),
-                    'user_id': user_id  # Ensure only the owner can edit the comment
+                    'user_id': user_id 
                 }
             }
         }
@@ -426,7 +409,6 @@ def edit_comment(location_id, comment_id):
             '$set': {'properties.comments.$.message_content': new_content}
         }
 
-        # Execute the update
         result = locations.update_one(comment_query, update_action)
         if result.modified_count == 0:
             return make_response(jsonify({'error': 'No comment found with provided user ID, or you do not have permission to edit this comment'}), 404)
@@ -463,32 +445,30 @@ def dislike_comment(location_id, comment_id):
 @app.route("/api/users/<string:user_id>/comments", methods=["GET"])
 def fetch_user_comments(user_id):
     try:
-        # Query to find comments made by the user across all locations
         pipeline = [
             {
                 "$match": {
-                    "properties.comments.user_id": user_id  # Adjust if your data structure differs
+                    "properties.comments.user_id": user_id  
                 }
             },
             {
-                "$unwind": "$properties.comments"  # Flatten the comments array
+                "$unwind": "$properties.comments"  
             },
             {
                 "$match": {
-                    "properties.comments.user_id": user_id  # Filter again after unwinding
+                    "properties.comments.user_id": user_id 
                 }
             },
             {
                 "$project": {
-                    "location_id": "$_id",  # Include location ID
-                    "comment": "$properties.comments",  # Include the comment details
-                    "_id": 0  # Exclude the default _id field
+                    "location_id": "$_id",  
+                    "comment": "$properties.comments", 
+                    "_id": 0  
                 }
             }
         ]
         comments = list(locations.aggregate(pipeline))
 
-        # Serialize the results
         comments_list = []
         for item in comments:
             item['comment']['_id'] = str(item['comment']['_id'])
@@ -525,7 +505,7 @@ def retrieve_wikiAPI_content(pageid, title):
         "exintro": "true",
         "explaintext": "true",
         "format": "json",
-        "pithumbsize": 500  # Thumbnail image size
+        "pithumbsize": 500  
     }
     
     response = requests.get(base_url, params=params)
@@ -535,7 +515,6 @@ def retrieve_wikiAPI_content(pageid, title):
     extract = page.get("extract", "Content not found.")
     image_url = page.get("thumbnail", {}).get("source", "")
     
-    # Construct the URL to the Wikipedia page
     page_url = f"https://en.wikipedia.org/wiki/{title.replace(' ', '_')}"
     
     return {"content": extract, "url": page_url, "image_url": image_url}
@@ -551,7 +530,7 @@ def wikipedia_geosearch(latitude, longitude, radius=1000):
         "list": "geosearch",
         "gscoord": f"{latitude}|{longitude}",
         "gsradius": radius,
-        "gslimit": "10",  # Adjust the limit as necessary.
+        "gslimit": "10",  
         "format": "json"
     }
     
@@ -577,28 +556,25 @@ def fetch_location_info():
     if not articles:
         return jsonify({"message": "No nearby Wikipedia articles found."})
     
-    # Fetch the content, URL, and image of the first article found
     first_article = articles[0]
     page_info = retrieve_wikiAPI_content(first_article["pageid"], first_article["title"])
     
-    # Return the title, content, URL, and image URL
     return jsonify({"title": first_article["title"], **page_info})
 
 
+#Get google location
 @app.route("/api/get_location", methods=["GET"])
 def get_location():
-    google_api_key = "AIzaSyCxGRHPhDu7A4gQU0fRnrYcwf1taC7wg9c"  # Make sure to set this in your environment variables
+    google_api_key = "AIzaSyCxGRHPhDu7A4gQU0fRnrYcwf1taC7wg9c"  
     url = f"https://www.googleapis.com/geolocation/v1/geolocate?key={google_api_key}"
     
-    # Make a POST request to Google's Geolocation API
     response = requests.post(url, json={"considerIp": "true"})
     
     if response.status_code == 200:
-        # Return the location data to the frontend
         return jsonify(response.json()), 200
     else:
-        error_response = response.json()  # Get the full response body
-        print(error_response)  # Optionally, log this to your server logs instead
+        error_response = response.json()  
+        print(error_response) 
         return jsonify(error_response), response.status_code
 
     
