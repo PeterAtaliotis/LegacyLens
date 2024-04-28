@@ -24,9 +24,9 @@ const ARSceneComponent = () => {
 
   const axiosInstance = axios.create({
     baseURL: 'http://localhost:8080', 
-    headers: {
-      'ngrok-skip-browser-warning': 'true',
-    }
+    // headers: {
+    //   'ngrok-skip-browser-warning': 'true',
+    // }
   });
 
   const handleLocationRequest = () => {

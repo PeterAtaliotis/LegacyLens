@@ -44,7 +44,6 @@ photos = db.photos
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    # Extract data from request form
     user_id = request.form['user_id']
     location_id = request.form['location_id']
     description = request.form.get('description', '')
@@ -54,24 +53,21 @@ def upload_file():
     if not file or not file.filename.lower().endswith('.jpg'):
         return jsonify({"error": "No JPEG file provided"}), 400
 
-    # Generate a new ObjectId for the photo
     photo_id = ObjectId()
 
     filename = secure_filename(file.filename)
     file_path = f"uploads/{filename}_{datetime.datetime.utcnow().isoformat()}.jpg"
 
     try:
-        # Upload to S3
         s3.upload_fileobj(
             file,
             app.config['S3_BUCKET'],
             file_path,
-            ExtraArgs={"ContentType": "image/jpeg"}  # Set the content type for JPEG files
+            ExtraArgs={"ContentType": "image/jpeg"} 
         )
 
-        # Save file metadata in MongoDB with the new ObjectId
         db.photos.insert_one({
-            "_id": photo_id,  # Use the generated ObjectId
+            "_id": photo_id, 
             "location_id": ObjectId(location_id),
             "uploaded_by": user_id,
             "file_path": f"https://{app.config['S3_BUCKET']}.s3.{app.config['S3_REGION']}.amazonaws.com/{file_path}",
@@ -86,29 +82,24 @@ def upload_file():
     
 @app.route('/photos', methods=['GET'])
 def get_photos():
-    # Retrieve query parameters
     user_id = request.args.get('user_id')
     location_id = request.args.get('location_id')
 
     query = {}
 
-    # Add user_id to query if provided
     if user_id:
         query['uploaded_by'] = user_id
 
-    # Add location_id to query if provided, ensuring it's an ObjectId
     if location_id:
         try:
             query['location_id'] = ObjectId(location_id)
         except:
             return jsonify({"error": "Invalid location_id format"}), 400
 
-    # Fetch photos from MongoDB based on the constructed query
     try:
         photos = db.photos.find(query)
         photos_list = []
         for photo in photos:
-            # Convert ObjectId to string for JSON serialization
             photo['_id'] = str(photo['_id'])
             photo['location_id'] = str(photo['location_id'])
             photos_list.append(photo)
@@ -122,12 +113,10 @@ def delete_photo(photo_id):
     try:
         user_id = request.json.get("user_id")
 
-        # Find the photo to verify ownership and get file_path
         photo = photos.find_one({"_id": ObjectId(photo_id), "uploaded_by": user_id})
         if not photo:
             return jsonify({"error": "Photo not found or user not authorized to delete this photo"}), 404
 
-        # Delete photo from S3 bucket
         s3_response = s3.delete_object(Bucket=os.getenv('S3_BUCKET'), Key=photo['file_path'])
         if s3_response['ResponseMetadata']['HTTPStatusCode'] != 204:
             return jsonify({"error": "Failed to delete the photo from S3"}), 500
@@ -152,7 +141,6 @@ def get_photos_by_location(id):
         photos_list = []
 
         for photo in photos:
-            # Ensure all MongoDB ObjectIds are converted to strings for JSON serialization
             photo['_id'] = str(photo['_id'])
             photo['location_id'] = str(photo['location_id'])
             photos_list.append(photo)
@@ -440,7 +428,9 @@ def edit_comment(location_id, comment_id):
 
     except Exception as e:
         return make_response(jsonify({'error': str(e)}), 500)
+    
 
+#like comments
 @app.route('/api/locations/<string:location_id>/comments/<string:comment_id>/like', methods=['POST'])
 def like_comment(location_id, comment_id):
     result = locations.update_one(
@@ -451,7 +441,8 @@ def like_comment(location_id, comment_id):
         return make_response(jsonify({'message': 'Successfully incremented like'}), 200)
     else:
         return make_response(jsonify({'error': 'Unable to increment like'}), 400)
-
+    
+#dislike comments
 @app.route('/api/locations/<string:location_id>/comments/<string:comment_id>/dislike', methods=['POST'])
 def dislike_comment(location_id, comment_id):
     result = locations.update_one(
