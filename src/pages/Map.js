@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Map, { Marker, Popup, NavigationControl, FullscreenControl, ScaleControl, GeolocateControl, ViewStateChangeEvent } from 'react-map-gl';
 import Pin from '../components/Pin';
-import ControlPanel from '../components/ControlPanel';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useNavigate } from 'react-router-dom'; 
 
@@ -51,7 +50,6 @@ const MapComponent = () => {
       );
       if (!response.ok) throw new Error('Failed to fetch');
       const data = await response.json();
-      // Only keep up to 100 locations
       setLocations(data.slice(0, 230));
     } catch (error) {
       console.error("Error fetching locations:", error);
@@ -119,7 +117,6 @@ const MapComponent = () => {
                 >
                   Learn More
               </button>
-              {/* Render other popupInfo details as needed */}
             </div>
           </Popup>
         )}

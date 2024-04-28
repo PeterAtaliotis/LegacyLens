@@ -13,7 +13,6 @@ const ARSceneComponent = () => {
     { x: 0, y: 0, z: -5 },
     { x: 1.5, y: 0, z: -5 },
     { x: 3, y: 0, z: -5 },
-    // Add more positions as needed
   ];
 
   const navigate = useNavigate();
@@ -23,11 +22,10 @@ const ARSceneComponent = () => {
   };
   
 
-  // Create an Axios instance with the base URL of your ngrok tunnel and the custom header to bypass the warning
   const axiosInstance = axios.create({
-    baseURL: 'https://8723-81-103-32-182.ngrok-free.app', // Replace with your actual ngrok URL
+    baseURL: 'http://localhost:8080', 
     headers: {
-      'ngrok-skip-browser-warning': 'true', // Any non-empty value should bypass the warning
+      'ngrok-skip-browser-warning': 'true',
     }
   });
 
@@ -97,10 +95,8 @@ const ARSceneComponent = () => {
     <a-scene vr-mode-ui='enabled: false' arjs='sourceType: webcam; videoTexture: true; debugUIEnabled: false' renderer='antialias: true; alpha: true'>
       <a-camera gps-new-camera='gpsMinDistance: 5' rotation-reader></a-camera>
       {markers.map((marker, index) => (
-        // Place each image in front of the user statically
         <a-image
             key={index}
-            // Use a predefined position for each image, cycling through if there are more images than positions
             position={`${imagePositions[index % imagePositions.length].x} ${imagePositions[index % imagePositions.length].y} ${imagePositions[index % imagePositions.length].z}`}
             src={marker.imageUrl}
             scale="2 2 2"

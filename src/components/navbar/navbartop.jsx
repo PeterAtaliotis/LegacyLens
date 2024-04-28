@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import Logo from "./Logo";
-import Button from "./Button";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from 'react-router-dom';
 import LoginButton from "../authComponents/login";
@@ -15,7 +14,7 @@ const Navbar = ({ toggle }) => {
   const navigate = useNavigate();
 
   const goToProfile = () => {
-    navigate('/profile'); // Assuming your profile page's route is '/profile'
+    navigate('/profile'); 
   };
   
   const { isAuthenticated } = useAuth0();
@@ -28,7 +27,6 @@ const Navbar = ({ toggle }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
             </svg>
           </button>
-          {/* Adjusted Dropdown menu with React Router's Link */}
           <ul tabIndex={0} className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
             <li><Link to="/test">AR</Link></li>
             <li><a><Link to="/map">Map</Link></a></li>

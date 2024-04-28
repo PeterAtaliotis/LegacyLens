@@ -116,6 +116,29 @@ def get_photos():
         return jsonify(photos_list)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/photos/<photo_id>', methods=['DELETE'])
+def delete_photo(photo_id):
+    try:
+        user_id = request.json.get("user_id")
+
+        # Find the photo to verify ownership and get file_path
+        photo = photos.find_one({"_id": ObjectId(photo_id), "uploaded_by": user_id})
+        if not photo:
+            return jsonify({"error": "Photo not found or user not authorized to delete this photo"}), 404
+
+        # Delete photo from S3 bucket
+        s3_response = s3.delete_object(Bucket=os.getenv('S3_BUCKET'), Key=photo['file_path'])
+        if s3_response['ResponseMetadata']['HTTPStatusCode'] != 204:
+            return jsonify({"error": "Failed to delete the photo from S3"}), 500
+
+        # Delete photo metadata from MongoDB
+        photos.delete_one({"_id": ObjectId(photo_id)})
+
+        return jsonify({"message": "Photo deleted successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
     
     
 @app.route("/api/photos/location/<string:id>", methods=["GET"])
@@ -547,7 +570,7 @@ def wikipedia_geosearch(latitude, longitude, radius=1000):
 def fetch_location_info():
     latitude = request.args.get('latitude', type=float)
     longitude = request.args.get('longitude', type=float)
-    radius = request.args.get('radius', default=200, type=int)
+    radius = request.args.get('radius', default=100, type=int)
     
     if latitude is None or longitude is None:
         return jsonify({"error": "Latitude and longitude parameters are required."}), 400

@@ -10,12 +10,11 @@ const MessageBoard = ({ locationId }) => {
   const [locationDetails, setLocationDetails] = useState(null);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [editingCommentId, setEditingCommentId] = useState(null);  // To track the currently editing comment
-  const [editContent, setEditContent] = useState("");  // State to hold the editable content
+  const [editingCommentId, setEditingCommentId] = useState(null);  
+  const [editContent, setEditContent] = useState("");  
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0();
-  const navigate = useNavigate();  // Instantiate navigate function
+  const navigate = useNavigate(); 
 
-  // Function to handle navigation to the location details page
   const goToLocationDetails = () => {
     navigate(`/location/${locationId}`);
   };
@@ -31,7 +30,7 @@ const MessageBoard = ({ locationId }) => {
           Authorization: `Bearer ${token}`, // Send the token in the Authorization header
         },
         body: JSON.stringify({
-          user_id: user.sub  // Include the user ID expected by the server
+          user_id: user.sub  
         })
       });
   
@@ -39,7 +38,6 @@ const MessageBoard = ({ locationId }) => {
         throw new Error('Failed to delete comment');
       }
   
-      // Remove the deleted comment from the local state to update UI
       setComments(prevComments => prevComments.filter(comment => comment._id !== commentId));
     } catch (error) {
       console.error("Error deleting comment:", error);
@@ -56,10 +54,9 @@ const MessageBoard = ({ locationId }) => {
   const saveEdit = async (commentId) => {
     if (!editContent.trim()) {
       alert("Comment content cannot be empty.");
-      return;  // Prevent submitting empty comments
+      return; 
     }
     
-    // Call your API to save the edited comment
     const token = await getAccessTokenSilently();
     const response = await fetch(`http://localhost:8080/api/locations/${locationId}/comments/${commentId}`, {
       method: 'PUT',
@@ -73,7 +70,7 @@ const MessageBoard = ({ locationId }) => {
     if (response.ok) {
       const updatedComment = await response.json();
       setComments(prevComments => prevComments.map(comment => comment._id === commentId ? { ...comment, message_content: editContent } : comment));
-      setEditingCommentId(null);  // Reset editing mode
+      setEditingCommentId(null);  
       alert("Comment edited successfully.");
     } else {
       alert("Failed to edit comment. Please try again.");
@@ -83,7 +80,6 @@ const MessageBoard = ({ locationId }) => {
   
 
   useEffect(() => {
-    // Fetch comments for the location
     const fetchComments = async () => {
       try {
         const locResponse = await fetch(`http://localhost:8080/api/locations/${locationId}`);
@@ -109,10 +105,9 @@ const MessageBoard = ({ locationId }) => {
       return;
     }
 
-    // Use user's information from Auth0
     const commentData = {
-      user_id: user.sub, // Use Auth0's user ID
-      username: user.name || user.nickname || "Anonymous", // Use Auth0's username or nickname
+      user_id: user.sub, 
+      username: user.name || user.nickname || "Anonymous",
       dislikes: 0,
       likes: 0,
       message_content: newComment,
@@ -128,7 +123,7 @@ const MessageBoard = ({ locationId }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // Send the token in the Authorization header
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(commentData),
       });
@@ -139,7 +134,7 @@ const MessageBoard = ({ locationId }) => {
 
       const newCommentData = await response.json();
       setComments(prevComments => [...prevComments, newCommentData.comment]);
-      setNewComment(''); // Clear the textarea after posting
+      setNewComment(''); 
     } catch (error) {
       console.error("Error posting new comment:", error);
       alert("Failed to post comment. Please try again.");
@@ -148,7 +143,7 @@ const MessageBoard = ({ locationId }) => {
 
   const cancelEdit = () => {
     setEditingCommentId(null);
-    setEditContent(""); // Optionally clear editContent or reset to original
+    setEditContent(""); 
   };
 
   const handleLike = async (commentId) => {
