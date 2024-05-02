@@ -157,13 +157,6 @@ def get_photos_by_location(id):
 ## LOCATION RETRIEVAL ENDPOINTS
 ##################################################################
 
-@app.route("/api/home", methods=['GET'])
-def return_home():
-    return jsonify({
-        'message': "Like this video if this helped!",
-        'people': ['Jack', 'Harry', 'Arpan']
-    })
-
 def serialize_document(doc):
     """
     Recursively convert MongoDB document, converting all ObjectIds to strings.
@@ -280,7 +273,7 @@ def get_one_location(id):
                 comment["_id"] = str(comment["_id"])
             return make_response( jsonify( [location]), 200 )
         else:
-            return make_response( jsonify( {"error" : "Invalid location_list ID" } ), 404 )
+            return make_response( jsonify( {"error" : "Invalid location ID" } ), 404 )
         
         
 ##################################################
@@ -332,7 +325,7 @@ def add_comment(id):
     try:
       
         user_id = request.json.get("user_id")
-        username = request.json.get("username", "Anonymous")  #
+        username = request.json.get("username", "Anonymous") 
         message_content = request.json.get("message_content")
         
         if not user_id or not message_content:

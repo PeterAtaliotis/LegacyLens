@@ -1,13 +1,12 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import MessageBoard from '../components/MessageBoard'; // Import the component
+import MessageBoard from '../components/MessageBoard'; 
 
 const LocationPage = () => {
-  const { id } = useParams(); // Assuming your route is something like '/locations/:id'
+  const { id } = useParams(); 
 
   return (
     <div className="container mx-auto p-4">
-      {/* Location info at the top */}
       <MessageBoard locationId={id} />
     </div>
   );

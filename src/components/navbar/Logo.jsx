@@ -6,7 +6,6 @@ const Logo = () => {
   const [width, setWidth] = useState(0);
   const [showButton, setShowButton] = useState(false);
 
-  // Update the size of the logo when the size of the screen changes
   const updateWidth = () => {
     const newWidth = window.innerWidth;
     setWidth(newWidth);
@@ -14,13 +13,10 @@ const Logo = () => {
 
   useEffect(() => {
     window.addEventListener("resize", updateWidth);
-    // Call updateWidth immediately to set initial size
     updateWidth();
-    // Clean up event listener on component unmount
     return () => window.removeEventListener("resize", updateWidth);
   }, []);
 
-  // Change between the logo and the button when the user scrolls
   const changeNavButton = () => {
     if (window.scrollY >= 400 && window.innerWidth < 768) {
       setShowButton(true);
@@ -31,7 +27,6 @@ const Logo = () => {
 
   useEffect(() => {
     window.addEventListener("scroll", changeNavButton);
-    // Clean up event listener on component unmount
     return () => window.removeEventListener("scroll", changeNavButton);
   }, []);
 
